@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        .button {
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .cell {
+            flex: 0 0 32%;
+            height: 50px;
+            margin-bottom: 5px;
+            background-color: #999;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 align="center">M5 Monitor</h1>
+
+    <div class="grid">
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/temperature';" value="M5 Temperature">M5 Temperature</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/gyro';" value="M5 Gyroscope">M5 Gyroscope</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/compass';" value="M5 Compass">M5 Compass</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/accel';" value="M5 Accelerometer">M5 Accelerometer</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/buttons';" value="M5 Buttons">M5 Buttons</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/sound';" value="M5 Sound">M5 Sound</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/image';" value="M5 Image">M5 Image</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/demos';" value="M5 Demos">M5 Demos</button></button>
+        <button class="button cell" type="button" onclick="location.href='http://192.168.4.1/all';" value="M5 Show all Sensors">M5 Show all Sensors</button></button>
+    </div>
+</body>
+</html>
