@@ -59,9 +59,29 @@ String HTML_END = "</body>\n"
 String BUTTON_DIV = "<h1 align=\"center\">M5 Buttons</h1>\n"
                     "\n"
                     "    <div class=\"grid\" id=\"m5 buttons\">\n"
-                    "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/temperature';\" value=\"M5 Temperature\">M5 Button A</button></button>\n"
-                    "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/gyro';\" value=\"M5 Gyroscope\">M5 Button B</button></button>\n"
-                    "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/compass';\" value=\"M5 Compass\">M5 Button C</button></button>\n"
+                    "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/buttons/a';\" value=\"M5 Button A\">M5 Button A</button></button>\n"
+                    "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/buttons/b';\" value=\"M5 Button B\">M5 Button B</button></button>\n"
+                    "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/buttons/c';\" value=\"M5 Button C\">M5 Button C</button></button>\n"
                     "    </div>";
+
+String text_div(String header, String value)
+{
+    return "<h1 align=\"center\">" + header + "</h1>\n"
+           "\n"
+           "<div id=textual_value_representation>"
+           "    <h2 align=\"center\">" + value + "</h2>"
+           "</div>"
+    ;
+}
+
+String img_div(String img_path, int width, int height, String alt)
+{
+    return "<img src=\"" + img_path + "\" alt=\"" + alt + "\" height=\"" + String(height) + "\" width=\"" + String(width) + "\" align=\"center\">";
+}
+
+String all_sensors_div(String temp, String gyro, String comp, String accel)
+{
+    return text_div("Temperature", temp) + "\n" + text_div("Gyroscope", gyro) + "\n" + text_div("Compass", comp) + "\n" + text_div("Accelerometer", accel);
+}
 
 #endif //LIBEWS_HTTPRESPONSES_H
