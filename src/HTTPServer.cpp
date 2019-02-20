@@ -17,6 +17,8 @@ IPAddress ip(192, 168, 10, 1);
 IPAddress gateway(192, 168, 10, 1);
 IPAddress subnet(255, 255, 255, 0);
 
+char * random_ssid_attachment = (char*)malloc(10);
+
 String header;
 
 const int FIRST_LINE_LAST_ACTIONS_Y_POS = 104;
@@ -33,7 +35,22 @@ void setup()
 {
     m5.begin();
 
-    WiFi.softAP(SSID, PASSWORD);
+
+    random_ssid_attachment[0] = '_';
+    for(byte i = 0; i < 8; i++){
+        random_ssid_attachment[i+1] = random(0,10)+0x30;
+    }
+    random_ssid_attachment[8+1] = '\0';
+
+    char * ssid;
+    ssid = (char *)malloc(strlen(SSID)+1+9);
+
+    strcpy(ssid, SSID);
+    strcat(ssid, random_ssid_attachment);
+
+    setup_mpu();  
+
+    WiFi.softAP(ssid, PASSWORD);
 
     ip = WiFi.softAPIP();
     wifi_server.begin();
@@ -43,7 +60,7 @@ void setup()
     m5.Lcd.print("Wi-Fi Server\n");
     m5.Lcd.setTextSize(2);
     m5.Lcd.print("SSID: ");
-    m5.Lcd.print(SSID);
+    m5.Lcd.print(ssid);
     m5.Lcd.print("\n");
     m5.Lcd.print("PASSWORD: ");
     m5.Lcd.print(PASSWORD);
@@ -98,6 +115,8 @@ String parseGET(String s)
 
 void loop()
 {
+    update_mpu();
+
     WiFiClient client = wifi_server.available(); // listen for incoming clients
 
     if (client)
@@ -121,18 +140,20 @@ void loop()
                     {
                         if (parseGET(currentLine) == "/temperature")
                         {
+                            auto temperature = "no temperature";
                             // place function to retrieve temperature at this spot here v
                             // function must return a String with reasonable format     v
-                            client.println(BASE_HTML + text_div("Temperature",     "25° Celsius") + HTML_END);
+                            client.println(BASE_HTML + text_div(temperature,     "25° Celsius") + HTML_END);
                             update_last_actions("temperature");
 
                             break;
                         }
                         else if (parseGET(currentLine) == "/gyro")
                         {
+                            auto gyroscope = String(gyroscope_x()) + ", "+String(gyroscope_y()) + ", " + String(gyroscope_z());
                             // place function to retrieve gyroscope at this spot here   v
                             // function must return a String with reasonable format     v
-                            client.println(BASE_HTML + text_div("Gyroscope",       "(x, y, z)") + HTML_END);
+                            client.println(BASE_HTML + text_div("Gyroscope",       gyroscope) + HTML_END);
 
                             update_last_actions("gyro");
 
@@ -142,7 +163,7 @@ void loop()
                         {
                             // place function to retrieve compass data at this spot here v
                             // function must return a String with reasonable format      v
-                            client.println(BASE_HTML + text_div("Compass", /*regex:*/ "[N|NW|W|SW|S|SE|E|NE]") + HTML_END);
+                            client.println(BASE_HTML + text_div("Compass", /*regex:*/ "compass()") + HTML_END);
 
                             update_last_actions("compass");
 
@@ -150,9 +171,10 @@ void loop()
                         }
                         else if (parseGET(currentLine) == "/accel")
                         {
+                            auto accelerometer = String(accelerometer_x()) + ", "+String(accelerometer_y()) + ", " + String(accelerometer_z());
                             // place function to retrieve accelerometer at this spot here v
                             // function must return a String with reasonable format       v
-                            client.println(BASE_HTML + text_div("Accelerometer",     "(x, y, z)") + HTML_END);
+                            client.println(BASE_HTML + text_div("Accelerometer",     accelerometer) + HTML_END);
                             update_last_actions("accel");
 
                             break;

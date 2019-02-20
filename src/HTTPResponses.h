@@ -3,6 +3,7 @@
 #define LIBEWS_HTTPRESPONSES_H
 
 #include <M5Stack.h>
+#include "Sensors.h"
 
 String BASE_HTML =   "<!DOCTYPE html>\n"
                      "<html lang=\"en\">\n"
