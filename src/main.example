@@ -1,0 +1,149 @@
+
+#include <M5Stack.h>
+#include <Sensors.h>
+
+#define MPU 0
+#define DISTANCE 2
+#define RFID 3
+#define JOYSTICK 4
+#define ANALOG_ANGLE 5
+#define BUTTON 6
+#define DUAL_BUTTON 7
+
+int mode = RFID;
+
+
+void setup()
+{
+    M5.begin();
+    M5.Lcd.setTextColor(WHITE);
+
+    switch (mode)
+    {
+        case MPU:
+            setup_mpu();
+            break;
+
+        case DISTANCE:
+            M5.Lcd.setTextSize(10);
+            setup_distance();
+            break;
+
+        case RFID:
+            M5.Lcd.setTextSize(2);
+            setup_rfid();
+            break;
+
+        case JOYSTICK:
+            M5.Lcd.setTextSize(5);
+            setup_joystick();
+            break;
+
+        case ANALOG_ANGLE:
+            M5.Lcd.setTextSize(10);
+            break;
+
+        case BUTTON:
+            M5.Lcd.setTextSize(10);
+            break;
+
+        case DUAL_BUTTON:
+            M5.Lcd.setTextSize(10);
+            break;
+
+
+        default:
+            break;
+    }
+}
+
+void loop()
+{
+    switch (mode)
+    {
+        case MPU:
+            update_mpu();
+            
+            M5.Lcd.fillScreen(BLACK);
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.print( axis_x());
+
+            M5.Lcd.setCursor(0, 50);
+            M5.Lcd.print( axis_y());
+
+            M5.Lcd.setCursor(0, 100);
+            M5.Lcd.print( axis_z());
+            break;
+
+        case DISTANCE:
+            delay(1000);
+            update_distance();
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.fillScreen(BLACK);
+            M5.Lcd.print( distance());
+            break;
+
+        case RFID:
+            delay(1000);
+            update_rfid();
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.fillScreen(BLACK);
+            M5.Lcd.print( rfid());
+            break;
+
+        case JOYSTICK:
+            delay(100);
+            update_joystick();
+
+            M5.Lcd.fillScreen(BLACK);
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.print( joystick_x());
+
+            M5.Lcd.setCursor(0, 50);
+            M5.Lcd.print( joystick_y());
+
+            M5.Lcd.setCursor(0, 100);
+            M5.Lcd.print( joystick_button());
+            break;
+
+        case ANALOG_ANGLE:
+            delay(10);
+            update_analog_angle();
+
+            M5.Lcd.fillScreen(BLACK);
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.print( analog_angle());
+            break;
+
+        case BUTTON:
+            delay(10);
+            update_button();
+
+            M5.Lcd.fillScreen(BLACK);
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.print( button());
+            break;
+        
+        case DUAL_BUTTON:
+            delay(10);
+            update_dual_button();
+
+            M5.Lcd.fillScreen(BLACK);
+
+            M5.Lcd.setCursor(0, 0);
+            M5.Lcd.print( button_a());
+
+            M5.Lcd.setCursor(0, 100);
+            M5.Lcd.print( button_b());
+            break;
+            
+        default:
+            break;
+    }
+}
