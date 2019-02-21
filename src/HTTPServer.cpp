@@ -2,22 +2,23 @@
 #include <M5Stack.h>
 #include <WiFi.h>
 #include "HTTPResponses.h"
+#include "Sensors.h"
 
 /*
  * platformio lib install "M5Stack"
  * platformio init --ide <prefered ide> --board m5stack-fire
- * */
+ */
 
-const char * SSID = "M5Stack";
-const char * PASSWORD = "12345678";
+const char *SSID = "M5Stack";
+const char *PASSWORD = "12345678";
 const int PORT = 80;
 
 WiFiServer wifi_server(PORT);
-IPAddress ip(192, 168, 10, 1);
+IPAddress ip(192, 168, 4, 1);
 IPAddress gateway(192, 168, 10, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-char * random_ssid_attachment = (char*)malloc(10);
+char *random_ssid_attachment = (char*)malloc(10);
 
 String header;
 
@@ -35,20 +36,20 @@ void setup()
 {
     m5.begin();
 
-
     random_ssid_attachment[0] = '_';
-    for(byte i = 0; i < 8; i++){
-        random_ssid_attachment[i+1] = random(0,10)+0x30;
-    }
-    random_ssid_attachment[8+1] = '\0';
 
-    char * ssid;
-    ssid = (char *)malloc(strlen(SSID)+1+9);
+    for(byte i = 0; i < 8; i++)
+        random_ssid_attachment[i + 1] = random(0, 10) + 0x30;
+
+    random_ssid_attachment[8 + 1] = '\0';
+
+    char *ssid;
+    ssid = (char *)malloc(strlen(SSID) + 1 + 9);
 
     strcpy(ssid, SSID);
     strcat(ssid, random_ssid_attachment);
 
-    setup_mpu();  
+    setup_mpu(); // needed for accelerometer and gyroscope; the magnetometer appears to be not working (yaw-values are weird)
 
     WiFi.softAP(ssid, PASSWORD);
 
@@ -56,8 +57,10 @@ void setup()
     wifi_server.begin();
 
     m5.Lcd.setBrightness(100);
+
     m5.Lcd.setTextSize(3);
     m5.Lcd.print("Wi-Fi Server\n");
+
     m5.Lcd.setTextSize(2);
     m5.Lcd.print("SSID: ");
     m5.Lcd.print(ssid);
@@ -72,9 +75,12 @@ void setup()
     m5.Lcd.println("Last Actions:");
 
     m5.Speaker.begin();
-
 }
 
+/*
+ * used to document the last actions performed by the M5Stack
+ * default is 5 based on the constant MAX_LENGTH_LAST_UPDATE_LIST
+ */
 void update_last_actions(String last_action)
 {
     if (current_length_last_update_list < MAX_LENGTH_LAST_UPDATE_LIST)
@@ -96,18 +102,25 @@ void update_last_actions(String last_action)
     }
 }
 
+/*
+ * parses the user's request
+ * returns the last entry of the url (e.g. /accel)
+ */
 String parseGET(String s)
 {
     String temp;
 
     for(int i = 0, k = 0; i < s.length(); i++)
     {
-        if(s[i] == ' ') k++;
+        if(s[i] == ' ')
+            k++;
 
         if (k == 1)
-            if (s[i] != ' ') temp += s[i];
+            if (s[i] != ' ')
+                temp += s[i];
 
-        if (k == 2) break;
+        if (k == 2)
+            break;
     }
 
     return temp;
@@ -115,7 +128,7 @@ String parseGET(String s)
 
 void loop()
 {
-    update_mpu();
+    update_mpu(); // needed for accelerometer and gyroscope; the magnetometer appears to be not working (yaw-values are weird)
 
     WiFiClient client = wifi_server.available(); // listen for incoming clients
 
@@ -138,42 +151,20 @@ void loop()
                     }
                     else
                     {
-                        if (parseGET(currentLine) == "/temperature")
+                        if (parseGET(currentLine) == "/gyro")
                         {
-                            auto temperature = "no temperature";
-                            // place function to retrieve temperature at this spot here v
-                            // function must return a String with reasonable format     v
-                            client.println(BASE_HTML + text_div(temperature,     "25° Celsius") + HTML_END);
-                            update_last_actions("temperature");
+                            auto gyroscope = String(gyroscope_x()) + ", " + String(gyroscope_y()) + ", " + String(gyroscope_z());
 
-                            break;
-                        }
-                        else if (parseGET(currentLine) == "/gyro")
-                        {
-                            auto gyroscope = String(gyroscope_x()) + ", "+String(gyroscope_y()) + ", " + String(gyroscope_z());
-                            // place function to retrieve gyroscope at this spot here   v
-                            // function must return a String with reasonable format     v
-                            client.println(BASE_HTML + text_div("Gyroscope",       gyroscope) + HTML_END);
+                            client.println(BASE_HTML + text_div("Gyroscope", gyroscope) + HTML_END);
 
                             update_last_actions("gyro");
 
                             break;
                         }
-                        else if (parseGET(currentLine) == "/compass")
-                        {
-                            // place function to retrieve compass data at this spot here v
-                            // function must return a String with reasonable format      v
-                            client.println(BASE_HTML + text_div("Compass", /*regex:*/ "compass()") + HTML_END);
-
-                            update_last_actions("compass");
-
-                            break;
-                        }
                         else if (parseGET(currentLine) == "/accel")
                         {
-                            auto accelerometer = String(accelerometer_x()) + ", "+String(accelerometer_y()) + ", " + String(accelerometer_z());
-                            // place function to retrieve accelerometer at this spot here v
-                            // function must return a String with reasonable format       v
+                            auto accelerometer = String(accelerometer_x()) + ", " + String(accelerometer_y()) + ", " + String(accelerometer_z());
+
                             client.println(BASE_HTML + text_div("Accelerometer",     accelerometer) + HTML_END);
                             update_last_actions("accel");
 
@@ -191,20 +182,8 @@ void loop()
                             m5.Speaker.setBeep(30, 1000);
                             m5.Speaker.beep();
 
-                            client.println(BASE_HTML + text_div("Sound", String("Notice me") + String("played")) + HTML_END);
+                            client.println(BASE_HTML + text_div("Sound", String("Sound ") + String("played")) + HTML_END);
                             update_last_actions("sound");
-
-                            break;
-                        }
-                        else if (parseGET(currentLine) == "/image")
-                        {
-                            //                                                                                  Set your image alt text here v
-                            //                                                                    Set your image height here v               v
-                            //                                                                Set your image width here v    v               v
-                            //   (i do not know if this is possible on M5 Stack) Set a valid path to an image here v    v    v               v
-                            //                                   Set name of image here v                          v    v    v               v
-                            client.println(BASE_HTML + text_div("Image", String("<Name of Image>") + "") + img_div("", 640, 480, "There should be an image.") + HTML_END);
-                            update_last_actions("image");
 
                             break;
                         }
@@ -218,8 +197,10 @@ void loop()
                         }
                         else if (parseGET(currentLine) == "/all")
                         {
-                            //                                         temperature  gyroscope values     compass value     accelerometer values
-                            client.println(BASE_HTML + all_sensors_div("25° Celsius", "(x, y, z)",  "[N|NW|W|SW|S|SE|E|NE]", "(x, y, z)") + HTML_END);
+                            auto gyroscope = String(gyroscope_x()) + ", " + String(gyroscope_y()) + ", " + String(gyroscope_z());
+                            auto accelerometer = String(accelerometer_x()) + ", " + String(accelerometer_y()) + ", " + String(accelerometer_z());
+
+                            client.println(BASE_HTML + all_sensors_div(gyroscope, accelerometer) + HTML_END);
 
                             update_last_actions("all_sensors");
                             break;

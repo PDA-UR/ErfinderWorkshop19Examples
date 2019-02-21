@@ -3,7 +3,6 @@
 #define LIBEWS_HTTPRESPONSES_H
 
 #include <M5Stack.h>
-#include "Sensors.h"
 
 String BASE_HTML =   "<!DOCTYPE html>\n"
                      "<html lang=\"en\">\n"
@@ -43,13 +42,10 @@ String BASE_HTML =   "<!DOCTYPE html>\n"
                      "    <h1 align=\"center\">M5 Monitor</h1>\n"
                      "\n"
                      "    <div class=\"grid\">\n"
-                     "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/temperature';\" value=\"M5 Temperature\">M5 Temperature</button></button>\n"
                      "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/gyro';\" value=\"M5 Gyroscope\">M5 Gyroscope</button></button>\n"
-                     "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/compass';\" value=\"M5 Compass\">M5 Compass</button></button>\n"
                      "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/accel';\" value=\"M5 Accelerometer\">M5 Accelerometer</button></button>\n"
                      "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/buttons';\" value=\"M5 Buttons\">M5 Buttons</button></button>\n"
                      "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/sound';\" value=\"M5 Sound\">M5 Sound</button></button>\n"
-                     "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/image';\" value=\"M5 Image\">M5 Image</button></button>\n"
                      "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/demos';\" value=\"M5 Demos\">M5 Demos</button></button>\n"
                      "        <button class=\"button cell\" type=\"button\" onclick=\"location.href='http://192.168.4.1/all';\" value=\"M5 Show all Sensors\">M5 Show all Sensors</button></button>\n"
                      "    </div>\n";
@@ -75,14 +71,9 @@ String text_div(String header, String value)
     ;
 }
 
-String img_div(String img_path, int width, int height, String alt)
+String all_sensors_div(String gyro, String accel)
 {
-    return "<img src=\"" + img_path + "\" alt=\"" + alt + "\" height=\"" + String(height) + "\" width=\"" + String(width) + "\" align=\"center\">";
-}
-
-String all_sensors_div(String temp, String gyro, String comp, String accel)
-{
-    return text_div("Temperature", temp) + "\n" + text_div("Gyroscope", gyro) + "\n" + text_div("Compass", comp) + "\n" + text_div("Accelerometer", accel);
+    return text_div("Gyroscope", gyro) + "\n" + text_div("Accelerometer", accel);
 }
 
 #endif //LIBEWS_HTTPRESPONSES_H
